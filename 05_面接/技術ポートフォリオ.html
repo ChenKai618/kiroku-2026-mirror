@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>技術ポートフォリオ｜陳凱</title>
+<style>
+  /* ═══ 面接用スライド ═══
+     操作：→ / Space で次、← で前、F でフルスクリーン、G でグリッド一覧
+     印刷：Cmd+P → 背景グラフィックONでPDF化できる                       */
+
+  @font-face{font-family:'system';src:local('Hiragino Kaku Gothic ProN'),local('Yu Gothic'),local('Noto Sans JP')}
+
+  :root{
+    --ink:#11161d;      /* 本文 */
+    --ink-2:#4a5462;    /* 副次 */
+    --ink-3:#7b8694;    /* 三次 */
+    --line:#dde3ea;
+    --bg:#fbfcfd;
+    --card:#ffffff;
+    --accent:#1d5fa8;   /* 決定・強調 */
+    --accent-w:#eaf1fa;
+    --warn:#a8501d;     /* 却下・制約 */
+    --warn-w:#faf1ea;
+    --ok:#1d7a52;
+    --ok-w:#eaf7f1;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'system',-apple-system,'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+    background:#0d1117;color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;overflow:hidden;
+  }
+
+  #deck{width:100vw;height:100vh;position:relative}
+
+  .slide{
+    position:absolute;inset:0;
+    display:none;
+    flex-direction:column;
+    padding:5.5vh 6vw;
+    background:var(--bg);
+    overflow:hidden;
+  }
+  .slide.on{display:flex;animation:in .28s ease-out}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ── 見出し ── */
+  .kicker{
+    font-size:1.15vw;letter-spacing:.18em;color:var(--ink-3);
+    text-transform:uppercase;font-weight:600;margin-bottom:1.2vh;
+  }
+  h1{font-size:3.6vw;font-weight:700;letter-spacing:-.01em;line-height:1.18}
+  h2{font-size:2.5vw;font-weight:700;letter-spacing:-.005em;line-height:1.25;margin-bottom:.6vh}
+  .sub{font-size:1.35vw;color:var(--ink-2);line-height:1.6;margin-top:1.4vh;font-weight:400}
+  .rule{height:3px;width:64px;background:var(--accent);margin:2.4vh 0}
+
+  /* ── 表紙 ── */
+  .cover{justify-content:center;background:
+    radial-gradient(120% 90% at 88% 8%,#eef4fb 0%,transparent 55%),var(--bg)}
+  .cover h1{font-size:4.4vw}
+  .meta{display:flex;gap:2.4vw;margin-top:4vh;flex-wrap:wrap}
+  .meta div{font-size:1.2vw;color:var(--ink-2)}
+  .meta b{display:block;font-size:.95vw;color:var(--ink-3);letter-spacing:.1em;
+          text-transform:uppercase;margin-bottom:.5vh;font-weight:600}
+
+  /* ── レイアウト ── */
+  .body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:2.6vw;align-items:start}
+  .cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8vw}
+
+  /* ── カード ── */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:2.4vh 1.9vw;
+  }
+  .card-t{font-size:1.3vw;font-weight:700;margin-bottom:1.2vh;display:flex;
+          align-items:center;gap:.6vw;line-height:1.3}
+  .card p,.card li{font-size:1.08vw;line-height:1.72;color:var(--ink-2)}
+  .card ul{list-style:none}
+  .card li{padding-left:1.1vw;position:relative;margin-bottom:.7vh}
+  .card li::before{content:'';position:absolute;left:0;top:.72em;
+    width:4px;height:4px;border-radius:50%;background:var(--ink-3)}
+
+  .tag{
+    display:inline-block;font-size:.85vw;font-weight:700;letter-spacing:.06em;
+    padding:.35vh .7vw;border-radius:4px;vertical-align:middle;
+  }
+  .t-ok{background:var(--accent-w);color:var(--accent)}
+  .t-no{background:var(--warn-w);color:var(--warn)}
+  .t-gr{background:var(--ok-w);color:var(--ok)}
+
+  /* ── 決定/却下ブロック ── */
+  .dec{border-left:3px solid var(--accent);background:var(--accent-w);
+       padding:1.8vh 1.6vw;border-radius:0 8px 8px 0;margin-bottom:1.6vh}
+  .rej{border-left:3px solid var(--warn);background:var(--warn-w);
+       padding:1.8vh 1.6vw;border-radius:0 8px 8px 0}
+  .dec .card-t{color:var(--accent)}
+  .rej .card-t{color:var(--warn)}
+
+  /* ── 図：アーキテクチャ ── */
+  .arch{display:flex;flex-direction:column;gap:1.1vh;align-items:stretch;
+        font-size:1.02vw;line-height:1.5}
+  .layer{
+    background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:1.5vh 1.4vw;position:relative;
+  }
+  .layer.hi{border-color:var(--accent);background:var(--accent-w)}
+  .layer-h{font-weight:700;font-size:1.1vw;margin-bottom:.5vh}
+  .layer-d{color:var(--ink-2);font-size:.98vw}
+  .arrow{text-align:center;color:var(--ink-3);font-size:1.1vw;line-height:1}
+  .branch{display:grid;grid-template-columns:1fr 1fr;gap:1vw}
+
+  /* ── 並行制御の図 ── */
+  .lanes{display:flex;flex-direction:column;gap:1.4vh;margin-top:1vh}
+  .lane{display:flex;align-items:center;gap:1vw}
+  .lane-l{width:11vw;font-size:1.05vw;font-weight:700;text-align:right;flex-shrink:0}
+  .lane-b{flex:1;display:flex;gap:.5vw}
+  .blk{
+    flex:1;height:4.4vh;border-radius:6px;display:flex;align-items:center;
+    justify-content:center;font-size:.92vw;font-weight:600;color:#fff;
+  }
+  .blk.par{background:var(--ok)}
+  .blk.ser{background:var(--accent)}
+  .blk.idle{background:#e4e9ef;color:var(--ink-3)}
+  .lane-n{font-size:.92vw;color:var(--ink-3);width:12vw;flex-shrink:0}
+
+  /* ── 単一真相の図 ── */
+  .sst{display:flex;flex-direction:column;align-items:center;gap:1.4vh;margin-top:1vh}
+  .clock{
+    background:var(--accent);color:#fff;border-radius:8px;
+    padding:1.7vh 2.4vw;font-size:1.3vw;font-weight:700;text-align:center;
+  }
+  .clock small{display:block;font-size:.9vw;font-weight:400;opacity:.85;margin-top:.4vh}
+  .fan{display:flex;gap:1.2vw;width:100%}
+  .fan .card{flex:1;text-align:center;padding:1.6vh 1vw}
+  .fan .card-t{justify-content:center;font-size:1.05vw;margin-bottom:.6vh}
+  .fan p{font-size:.95vw}
+
+  /* ── 数値 ── */
+  .nums{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4vw;margin-top:2vh}
+  .num{text-align:center;background:var(--card);border:1px solid var(--line);
+       border-radius:10px;padding:2.4vh 1vw}
+  .num b{display:block;font-size:2.8vw;font-weight:700;color:var(--accent);
+         line-height:1;letter-spacing:-.02em}
+  .num span{display:block;font-size:.98vw;color:var(--ink-2);margin-top:1vh}
+
+  /* ── 脚注 ── */
+  .foot{font-size:.92vw;color:var(--ink-3);margin-top:2vh;line-height:1.6}
+  code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:.92em;
+       background:#eef1f5;padding:.12em .4em;border-radius:3px;color:var(--ink)}
+
+  /* ── ページ番号 ── */
+  .pg{position:absolute;bottom:3vh;right:3vw;font-size:.9vw;color:var(--ink-3);
+      font-variant-numeric:tabular-nums}
+
+  /* ── グリッド一覧 ── */
+  #grid{display:none;position:fixed;inset:0;background:#0d1117;z-index:99;
+        padding:4vh;overflow:auto}
+  #grid.on{display:grid;grid-template-columns:repeat(4,1fr);gap:2vh;align-content:start}
+  .thumb{background:var(--bg);border-radius:8px;padding:2vh;cursor:pointer;
+         border:2px solid transparent;transition:border-color .15s}
+  .thumb:hover{border-color:var(--accent)}
+  .thumb b{display:block;font-size:1vw;margin-bottom:.6vh}
+  .thumb span{font-size:.85vw;color:var(--ink-3)}
+
+  /* ── 操作ヒント ── */
+  #hint{position:fixed;bottom:2vh;left:50%;transform:translateX(-50%);
+        background:rgba(13,17,23,.88);color:#c9d3de;font-size:12px;
+        padding:8px 16px;border-radius:20px;z-index:98;letter-spacing:.03em;
+        transition:opacity .4s}
+  #hint.hide{opacity:0;pointer-events:none}
+
+  @media print{
+    body{background:#fff;display:block;overflow:visible}
+    #deck{width:auto;height:auto}
+    .slide{display:flex!important;position:relative;height:100vh;
+           page-break-after:always;animation:none}
+    #hint,#grid{display:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ═══ 1. 表紙 ═══ -->
+  <section class="slide cover on">
+    <div class="kicker">技術ポートフォリオ</div>
+    <h1>設計判断を残す開発</h1>
+    <div class="sub" style="max-width:52vw">
+      個人開発において、実装そのものより<strong>「なぜその構成を選んだか」</strong>を
+      記録に残すことを重視しています。本資料では2つのプロジェクトの設計判断をご紹介します。
+    </div>
+    <div class="meta">
+      <div><b>氏名</b>陳 凱</div>
+      <div><b>期間</b>2026年3月 〜 現在</div>
+      <div><b>実績</b>4プロジェクト / 200コミット超 / 2件公開稼働</div>
+      <div><b>資格</b>AWS SAP・SAA・CLF / JLPT N1</div>
+    </div>
+    <div class="pg">1</div>
+  </section>
+
+  <!-- ═══ 2. 全体像 ═══ -->
+  <section class="slide">
+    <div class="kicker">Overview</div>
+    <h2>個人開発の実績</h2>
+    <div class="body">
+      <div class="nums">
+        <div class="num"><b>4</b><span>プロジェクト<br>（2026年3月以降）</span></div>
+        <div class="num"><b>200+</b><span>コミット</span></div>
+        <div class="num"><b>2</b><span>公開稼働中</span></div>
+        <div class="num"><b>6</b><span>ADR<br>（設計判断の記録）</span></div>
+      </div>
+      <div class="cols" style="margin-top:3vh">
+        <div class="card">
+          <div class="card-t">Kotoba Studio <span class="tag t-ok">本日ご紹介</span></div>
+          <p>字幕のない日本語動画に、AIで<strong>単語レベルのタイムスタンプ付き字幕</strong>を生成し、
+             動画・字幕・タイムラインを同期させた精読環境を提供するローカルアプリ。</p>
+          <p style="margin-top:1vh"><code>Python / FastAPI / WhisperX / SQLite / React 19 / TypeScript</code></p>
+        </div>
+        <div class="card">
+          <div class="card-t">baku-yomi（爆読） <span class="tag t-ok">本日ご紹介</span></div>
+          <p>日中対訳EPUBから<strong>逆翻訳の練習</strong>を行い、AIが訳質を評価する語学学習アプリ。
+             中国のSNSで<strong>1,000件以上の反響</strong>を獲得。</p>
+          <p style="margin-top:1vh"><code>TypeScript / React / Edge TTS / VOICEVOX / BYOK</code></p>
+        </div>
+      </div>
+      <div class="foot">
+        ※ 他に AWS認定試験の学習プラットフォーム（13区分 4,591問・トリリンガル対応）、
+        日本語複合動詞の可視化図鑑を開発・稼働中。
+      </div>
+    </div>
+    <div class="pg">2</div>
+  </section>
+
+  <!-- ═══ 3. アーキテクチャ ═══ -->
+  <section class="slide">
+    <div class="kicker">Kotoba Studio — Architecture</div>
+    <h2>ローカルWebアプリという構成の選択</h2>
+    <div class="body">
+      <div class="cols" style="grid-template-columns:1.15fr 1fr">
+        <div class="arch">
+          <div class="layer">
+            <div class="layer-h">ブラウザ（フロントエンド）</div>
+            <div class="layer-d">React 19 + TypeScript + Vite / Tailwind v4 + shadcn-ui</div>
+          </div>
+          <div class="arrow">↓ &nbsp;/api（Vite dev proxy）</div>
+          <div class="layer hi">
+            <div class="layer-h">FastAPI バックエンド（localhost:8000）</div>
+            <div class="layer-d">Python 3.11 / uv</div>
+          </div>
+          <div class="branch" style="margin-top:.4vh">
+            <div class="layer">
+              <div class="layer-h" style="font-size:1vw">タスクキュー</div>
+              <div class="layer-d" style="font-size:.92vw">DL並列・転録直列<br>SSEで進捗配信</div>
+            </div>
+            <div class="layer">
+              <div class="layer-h" style="font-size:1vw">WhisperX</div>
+              <div class="layer-d" style="font-size:.92vw">faster-whisper<br>wav2vec2 単語整列</div>
+            </div>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="layer">
+            <div class="layer-h">SQLite ＋ ライブラリフォルダ</div>
+            <div class="layer-d">構造化データはDB / 動画・転録JSONはファイル</div>
+          </div>
+        </div>
+        <div>
+          <div class="dec">
+            <div class="card-t">採用：ローカルWebアプリ</div>
+            <ul>
+              <li>WhisperX・yt-dlp が Python ネイティブ → バックエンドが自然に載る</li>
+              <li>字幕の時刻同期は <code>&lt;video&gt;</code> の <code>timeupdate</code> で実装が最も素直</li>
+              <li>将来 Tauri / pywebview で同じUIを包める → 書き直し不要</li>
+            </ul>
+          </div>
+          <div class="rej">
+            <div class="card-t">却下した案</div>
+            <ul>
+              <li><strong>PySide6 純デスクトップ</strong>：単一言語で楽だが、字幕同期UIのコストが高くコーデックの地雷が多い</li>
+              <li><strong>Electron + Python サイドカー</strong>：配布体験は良いが、IPCと重い配布を個人利用のv1に持ち込むのは過剰</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="foot">全データは本機に留まる（local-first）。外部公開しない前提のため認証は持たせていない ── ADR-0001</div>
+    </div>
+    <div class="pg">3</div>
+  </section>
+
+  <!-- ═══ 4. 並行制御（最重要） ═══ -->
+  <section class="slide">
+    <div class="kicker">Design Decision 01</div>
+    <h2>ボトルネックとなる資源で、並行方針を分ける</h2>
+    <div class="sub" style="max-width:60vw">
+      長時間タスクが2種類あります。同じキューに入れるのではなく、
+      <strong>何が競合資源かで方針を分けました。</strong>
+    </div>
+    <div class="body">
+      <div class="lanes">
+        <div class="lane">
+          <div class="lane-l">ダウンロード<br><span style="font-weight:400;font-size:.9vw;color:var(--ink-3)">yt-dlp</span></div>
+          <div class="lane-b">
+            <div class="blk par">DL 1</div>
+            <div class="blk par">DL 2</div>
+            <div class="blk par">DL 3</div>
+          </div>
+          <div class="lane-n"><span class="tag t-gr">並列</span> ネットワーク律速<br>GPUを取り合わない</div>
+        </div>
+        <div class="lane">
+          <div class="lane-l">文字起こし<br><span style="font-weight:400;font-size:.9vw;color:var(--ink-3)">WhisperX</span></div>
+          <div class="lane-b">
+            <div class="blk ser">転録 1</div>
+            <div class="blk idle">待機</div>
+            <div class="blk idle">待機</div>
+          </div>
+          <div class="lane-n"><span class="tag t-ok">直列</span> GPU 1枚<br>同時実行でVRAM競合→OOM</div>
+        </div>
+      </div>
+      <div class="cols" style="margin-top:3vh">
+        <div class="dec">
+          <div class="card-t">採用：Task を一等実体としてモデル化</div>
+          <ul>
+            <li>種別・状態（待機/進行中/完了/失敗）・進捗を持つ</li>
+            <li>プロジェクト状態はタスクが駆動：<code>待DL → 済DL → 転録 → 準備完了</code></li>
+            <li>進捗はSSEで配信（一方向で足りるためWebSocketは不採用）</li>
+            <li>リトライ＝新規タスク起票（冪等性の確保）</li>
+          </ul>
+        </div>
+        <div class="rej">
+          <div class="card-t">却下：タスク実体を持たない案</div>
+          <ul>
+            <li>「処理中のプロジェクト」だけ表示する案。実装は単純</li>
+            <li>だがタスク単位の進捗・リトライ・履歴の粒度が失われる</li>
+            <li>「タスクパネル」という機能の意味自体が消える</li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">
+        <strong>残した制約：</strong>将来並列転録を行う場合、先にVRAMのキューイングまたは隔離を解決する必要がある。
+        ── これは<strong>コードの表面を読んでも分からない制約</strong>のため、ADR-0002 に明記した。
+      </div>
+    </div>
+    <div class="pg">4</div>
+  </section>
+
+  <!-- ═══ 5. 単一真相 ═══ -->
+  <section class="slide">
+    <div class="kicker">Design Decision 02</div>
+    <h2>状態を1つにして、同期バグを構造的に排除する</h2>
+    <div class="sub" style="max-width:62vw">
+      同期が必要な表示面が3つありました。この種のUIで最も出やすいバグは
+      <strong>「3つの表示がズレる」</strong>ことです。
+    </div>
+    <div class="body">
+      <div class="sst">
+        <div class="clock">再生時刻（currentTime）<small>唯一の状態源 — single source of truth</small></div>
+        <div class="arrow">↓ &nbsp;&nbsp; セグメント／単語のタイムスタンプから導出 &nbsp;&nbsp; ↓</div>
+        <div class="fan">
+          <div class="card"><div class="card-t">左：単語ハイライト</div><p>カラオケ式に単語単位で発光</p></div>
+          <div class="card"><div class="card-t">右：字幕パネル</div><p>現在行の強調＋自動スクロール</p></div>
+          <div class="card"><div class="card-t">下：タイムライン</div><p>再生ヘッドが中央追従</p></div>
+        </div>
+      </div>
+      <div class="cols" style="margin-top:2.6vh">
+        <div class="dec">
+          <div class="card-t">この方針から導かれる操作の統一</div>
+          <ul>
+            <li><strong>次へ／前へ</strong> ＝ 隣接単語の開始位置に <code>seek</code></li>
+            <li><strong>単文ループ</strong> ＝ <code>end</code> まで再生したら <code>start</code> へ戻す</li>
+            <li><strong>どの面をクリックしても</strong> ＝ <code>seek</code></li>
+            <li>→ 独立した「学習ポインタ」は持たない</li>
+          </ul>
+        </div>
+        <div class="rej">
+          <div class="card-t">却下：独立ポインタを持つ案</div>
+          <ul>
+            <li>再生から切り離して動かせるポインタ。柔軟性は上がる</li>
+            <li>だが「再生時刻」と「ポインタ」の<strong>2つの状態</strong>が生まれ、ズレる余地が構造的に残る</li>
+            <li>柔軟性より、バグが起こりえない構造を優先した</li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">
+        <strong>残した制約：</strong>将来「動画を止めたままハイライトのみ移動」（書き取り練習等）が必要になった場合は、
+        既存のハイライトを暗黙に切り離すのではなく、<strong>明示的に別状態を追加すべき</strong> ── ADR-0004
+      </div>
+    </div>
+    <div class="pg">5</div>
+  </section>
+
+  <!-- ═══ 6. baku-yomi / BYOK ═══ -->
+  <section class="slide">
+    <div class="kicker">baku-yomi — Design Decision</div>
+    <h2>個人開発における鍵管理の責任範囲</h2>
+    <div class="body">
+      <div class="cols">
+        <div>
+          <div class="dec">
+            <div class="card-t">採用：BYOK（Bring Your Own Key）</div>
+            <ul>
+              <li>利用者が自分のAPIキーを持ち込む方式</li>
+              <li>キーは<strong>ブラウザのローカルストレージのみ</strong>に保持</li>
+              <li>サーバー側には一切送信しない・保存しない</li>
+              <li>OpenAI / Anthropic / Google のいずれにも対応</li>
+            </ul>
+          </div>
+          <div class="rej" style="margin-top:1.6vh">
+            <div class="card-t">なぜこの方式か</div>
+            <ul>
+              <li>自分のキーをサーバーに置けば、AI利用料は自分が負担し、<strong>キー漏洩の責任も自分が負う</strong></li>
+              <li>個人開発でその責任を持つのは現実的ではないと判断</li>
+              <li>結果として「鍵を預からない」＝<strong>守るべきものを持たない</strong>設計にした</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-t">その他の技術的な工夫</div>
+            <ul>
+              <li><strong>TTSの先読みキャッシュ</strong> — 連続読み上げ時、次の文の音声を事前取得。待機時間を体感ゼロに</li>
+              <li><strong>Edge TTS / VOICEVOX の二系統</strong> — 無料・設定不要の系統と、日本語音声品質の高い系統を選択可に</li>
+              <li><strong>文単位の対訳整列</strong> — 日本語原文と中国語訳を文単位で対応付け、逆翻訳の採点単位を明確化</li>
+            </ul>
+          </div>
+          <div class="card" style="margin-top:1.6vh;border-color:var(--ok);background:var(--ok-w)">
+            <div class="card-t" style="color:var(--ok)">実利用者からの反響</div>
+            <p>中国のSNSプラットフォーム（小紅書）にて<strong>1,000件以上の「いいね」</strong>を獲得。
+               実利用者からの機能要望を受けて改善を継続しています。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pg">6</div>
+  </section>
+
+  <!-- ═══ 7. AIとの向き合い方 ═══ -->
+  <section class="slide">
+    <div class="kicker">Development Practice</div>
+    <h2>AIを使うほど、設計判断の言語化が必要になる</h2>
+    <div class="body">
+      <div class="cols" style="grid-template-columns:1fr 1.1fr">
+        <div>
+          <div class="card">
+            <div class="card-t">実装には生成AIを積極的に使用</div>
+            <p>実装速度は上がります。ただ、指示が曖昧なままだと
+               <strong>「動くが後で崩れるコード」</strong>が出てきます。</p>
+            <p style="margin-top:1.2vh">結果として、<strong>何を作るか・なぜそうするか</strong>を
+               自分で決めて言語化する必要が、むしろ増えました。</p>
+          </div>
+          <div class="card" style="margin-top:1.6vh;border-color:var(--accent)">
+            <div class="card-t" style="color:var(--accent)">だから記録を残す</div>
+            <ul>
+              <li><code>docs/adr/</code> — 設計判断 6本（決定・理由・却下案・残る制約）</li>
+              <li><code>CONTEXT.md</code> — ドメイン用語集</li>
+              <li>「後から読む人が理解できる状態」を維持</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-t">ADR — Architecture Decision Record 6本</div>
+          <ul style="font-size:1.02vw">
+            <li><strong>0001</strong> ローカルWebアプリ構成の採用</li>
+            <li><strong>0002</strong> 後台タスクモデル：転録は直列・DLは並列</li>
+            <li><strong>0003</strong> 永続化：SQLite索引＋ライブラリフォルダ</li>
+            <li><strong>0004</strong> 再生時刻を唯一の状態源とする</li>
+            <li><strong>0005</strong> shadcn/ui＋Tailwind v4（重量級UIライブラリを排除）</li>
+            <li><strong>0006</strong> v1スコープ：プロトタイプは参照に留める</li>
+          </ul>
+          <div class="foot" style="margin-top:1.8vh">
+            各ADRは <strong>決定 / 理由 / 却下した代替案 / 残る制約</strong> の4点を記載。
+            とくに<strong>「却下した案」と「コードからは読めない制約」</strong>を残すことを重視しています。
+            実務でチーム開発をする際にも活きる習慣だと考えています。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pg">7</div>
+  </section>
+
+  <!-- ═══ 8. まとめ ═══ -->
+  <section class="slide">
+    <div class="kicker">Summary</div>
+    <h2>ご紹介した3つの設計判断</h2>
+    <div class="body">
+      <div class="cols-3">
+        <div class="card">
+          <div class="card-t">01 &nbsp;並行制御</div>
+          <p><strong>ボトルネック資源で方針を分ける</strong></p>
+          <p style="margin-top:1vh">GPU競合する転録は直列、ネットワーク律速のDLは並列。
+             同じ「長時間タスク」でも競合資源が違えばキュー方針は変わる。</p>
+        </div>
+        <div class="card">
+          <div class="card-t">02 &nbsp;状態管理</div>
+          <p><strong>状態を1つにしてバグを構造的に排除</strong></p>
+          <p style="margin-top:1vh">3つの表示面を1つの時計から導出。
+             同期バグを「直す」のではなく「起こりえない構造」にした。</p>
+        </div>
+        <div class="card">
+          <div class="card-t">03 &nbsp;責任範囲</div>
+          <p><strong>守るものを持たない設計</strong></p>
+          <p style="margin-top:1vh">APIキーを預からないBYOK方式。
+             個人開発で負える責任の範囲を、設計で決めた。</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:2.6vh;border-color:var(--accent);background:var(--accent-w)">
+        <div class="card-t" style="color:var(--accent)">現在の業務との接続</div>
+        <p style="font-size:1.15vw">
+          現在参画しているのは、損害保険会社向け基幹システムを
+          オンプレミスからAWSへ移行する案件です。
+          インフラ基盤チームがAWS側を担当する体制のため、
+          <strong>開発側としても移行先の全体像を理解する必要があると考え、AWS認定をCLFからSAPまで取得しました。</strong>
+          実務経験としてはまだ浅い段階ですが、基盤チームと同じ論点で議論できる土台は作れたと考えています。
+          今後は<strong>自分で設計・構築まで踏み込める環境</strong>で専門性を積み上げていきたいと考えております。
+        </p>
+      </div>
+    </div>
+    <div class="pg">8</div>
+  </section>
+
+</div>
+
+<div id="grid"></div>
+<div id="hint">→ / Space 次へ &nbsp;·&nbsp; ← 戻る &nbsp;·&nbsp; F 全画面 &nbsp;·&nbsp; G 一覧</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const titles=['表紙','個人開発の実績','アーキテクチャ','並行制御','単一真相','BYOK','AIとの向き合い方','まとめ'];
+let i=0, gridOn=false;
+
+function show(n){
+  i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+}
+function toggleGrid(){
+  gridOn=!gridOn;
+  const g=document.getElementById('grid');
+  if(gridOn){
+    g.innerHTML=titles.map((t,k)=>
+      `<div class="thumb" data-i="${k}"><b>${k+1}. ${t}</b><span>クリックで移動</span></div>`).join('');
+    g.classList.add('on');
+    g.querySelectorAll('.thumb').forEach(el=>
+      el.onclick=()=>{show(+el.dataset.i);toggleGrid()});
+  } else g.classList.remove('on');
+}
+
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();show(i+1)}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1)}
+  else if(e.key==='Home'){show(0)}
+  else if(e.key==='End'){show(slides.length-1)}
+  else if(e.key.toLowerCase()==='f'){
+    document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+  else if(e.key.toLowerCase()==='g'){toggleGrid()}
+  else if(e.key==='Escape'&&gridOn){toggleGrid()}
+});
+addEventListener('click',e=>{if(!gridOn&&!e.target.closest('.thumb'))show(i+1)});
+setTimeout(()=>document.getElementById('hint').classList.add('hide'),4000);
+</script>
+</body>
+</html>
