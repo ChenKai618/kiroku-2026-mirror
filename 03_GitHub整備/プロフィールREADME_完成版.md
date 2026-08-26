@@ -1,122 +1,155 @@
 <div align="center">
 
-# Chen Kai / 陳 凱
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a2980,50:26619c,100:0f2027&height=180&section=header&text=Chen%20Kai&fontSize=52&fontColor=ffffff&fontAlignY=36&desc=Software%20Engineer%20%C2%B7%20Tokyo&descSize=17&descAlignY=58" width="100%" alt="header"/>
 
-**Software Engineer** · Tokyo, Japan
+<a href="https://github.com/RainYaya">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3200&pause=900&color=58A6FF&center=true&vCenter=true&width=620&lines=Migrating+a+core+insurance+system+to+AWS;Architecture+decisions%2C+written+down;%E8%A8%AD%E8%A8%88%E5%88%A4%E6%96%AD%E3%82%92%E8%A8%98%E9%8C%B2%E3%81%AB%E6%AE%8B%E3%81%99" alt="typing"/>
+</a>
 
-金融系基幹システムのクラウド移行に従事。設計判断を記録に残す開発を実践しています。
+<br><br>
 
-<br>
-
-<img src="https://img.shields.io/badge/AWS_Certified-Solutions_Architect_Professional-FF9900?style=flat-square&logo=amazonwebservices&logoColor=white" alt="AWS SAP">
-<img src="https://img.shields.io/badge/AWS_Certified-Solutions_Architect_Associate-FF9900?style=flat-square&logo=amazonwebservices&logoColor=white" alt="AWS SAA">
-<img src="https://img.shields.io/badge/AWS_Certified-Cloud_Practitioner-FF9900?style=flat-square&logo=amazonwebservices&logoColor=white" alt="AWS CLF">
-<img src="https://img.shields.io/badge/JLPT-N1-BC002D?style=flat-square" alt="JLPT N1">
+<img src="https://custom-icon-badges.demolab.com/badge/AWS%20SAP-Solutions%20Architect%20Professional-FF9900?style=for-the-badge&logo=aws&logoColor=white&labelColor=232F3E" alt="SAP"/>
+<img src="https://custom-icon-badges.demolab.com/badge/SAA-Associate-FF9900?style=for-the-badge&logo=aws&logoColor=white&labelColor=232F3E" alt="SAA"/>
+<img src="https://custom-icon-badges.demolab.com/badge/CLF-Practitioner-FF9900?style=for-the-badge&logo=aws&logoColor=white&labelColor=232F3E" alt="CLF"/>
+<img src="https://img.shields.io/badge/JLPT-N1-BC002D?style=for-the-badge&labelColor=8B0000" alt="N1"/>
 
 </div>
 
 <br>
 
-## 現在
+<div align="center">
 
-**損害保険会社向け基幹システムのオンプレミス → AWS 移行案件**（大手SIer元請 / 12名体制）
+### 🛠 Stack
 
-ドキュメントが十分に整備されていないレガシーシステムに対し、
-ソースコードから現行仕様を復元した上で外部設計書・内部設計書を作成。
-単体テスト仕様書の作成・実施、移行前後の動作差分の検証まで担当しています。
+<img src="https://skillicons.dev/icons?i=java,cs,dotnet,python,fastapi,ts,react&theme=dark&perline=7" alt="stack 1"/>
+<br>
+<img src="https://skillicons.dev/icons?i=aws,docker,tailwind,vite,sqlite,git,linux&theme=dark&perline=7" alt="stack 2"/>
 
-インフラ基盤チームがAWS側を担当する体制のなかで、
-開発側としても移行先環境を理解する必要があると考え、
-AWS認定資格を CLF → SAA → SAP まで取得しました。
+</div>
 
+<br>
+
+<div align="center">
+
+### ⚡ Currently
+
+</div>
+
+```yaml
+project:  損害保険 基幹システム  →  オンプレミス から AWS へ移行
+scale:    大手SIer元請  ·  12名体制
+role:     開発メンバー — ソースコード解析 / 外部設計 / 内部設計 / UT
+stack:    Java  ·  Thymeleaf  ·  AWS EC2  ·  Git
+learning: 移行先を理解するため CLF → SAA → SAP を取得
 ```
-Java · Thymeleaf · AWS (EC2) · Git
-```
 
 <br>
 
-## Tech Stack
+<div align="center">
 
-**Backend**
+### 🧩 Projects
 
-![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![C#](https://img.shields.io/badge/C%23-512BD4?style=flat-square&logo=dotnet&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+</div>
 
-**Frontend**
+<table>
+<tr>
+<td width="50%" valign="top">
 
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+#### 🎬 [Kotoba Studio](https://github.com/RainYaya/bikuri-NihongoLens)
 
-**Infrastructure**
+字幕のない日本語動画に、**単語レベルの<br>タイムスタンプ付き字幕**を生成する精読アプリ
 
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonwebservices&logoColor=FF9900)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
+<img src="https://skillicons.dev/icons?i=python,fastapi,react,ts&theme=dark" height="34"/>
 
-<br>
+`WhisperX` `wav2vec2` `SQLite` `SSE`
 
-## 個人開発
+**→ [ADR 6本](https://github.com/RainYaya/bikuri-NihongoLens/tree/main/docs/adr)** で設計判断を記録
 
-業務外で継続的に開発しています。設計判断は **ADR（Architecture Decision Record）** として文書化し、
-ドメイン用語集と併せてリポジトリに残す進め方を実践しています。
+</td>
+<td width="50%" valign="top">
 
-### [Kotoba Studio](https://github.com/RainYaya/bikuri-NihongoLens)
+#### 📖 [baku-yomi](https://github.com/RainYaya/baku-yomi)
 
-字幕のない日本語動画に、AIで**単語レベルのタイムスタンプ付き字幕**を生成し、
-動画・字幕・タイムラインを同期させた精読環境を提供するローカルアプリ。
+日中対訳EPUBで**逆翻訳**を練習し、<br>AIが訳質を評価する語学学習アプリ
 
-`Python 3.11` `FastAPI` `WhisperX (faster-whisper large-v3)` `wav2vec2` `SQLite` `React 19` `TypeScript`
+<img src="https://skillicons.dev/icons?i=ts,react,docker&theme=dark" height="34"/>
 
-設計上の判断を [ADR 6本](https://github.com/RainYaya/bikuri-NihongoLens/tree/main/docs/adr) として記録しています。
+`Edge TTS` `VOICEVOX` `BYOK`
 
-- **[ADR-0002](https://github.com/RainYaya/bikuri-NihongoLens/blob/main/docs/adr/0002-background-task-model.md)** — 競合するリソースで並行方針を分ける
-  GPUが1枚のため文字起こしは**直列**、ネットワーク律速のダウンロードは**並列**。
-  将来並列転録を行うならVRAMの隔離が先、という*コードからは読めない制約*も残しています。
-- **[ADR-0004](https://github.com/RainYaya/bikuri-NihongoLens/blob/main/docs/adr/0004-playback-as-single-source-of-truth.md)** — 再生時刻を唯一の状態源にする
-  単語ハイライト・字幕の自動スクロール・タイムラインの再生ヘッドを同一の時計から導出。
-  状態を2つ持たないことで、**同期のズレを構造的に排除**しました。
+**→** APIキーをサーバーに送らない設計
 
-### [baku-yomi（爆読）](https://github.com/RainYaya/baku-yomi)
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-日中対訳EPUBから**逆翻訳**を練習し、AIが訳質を評価する語学学習アプリ。
+#### 🗺 [複合動詞図鑑](https://github.com/RainYaya/bikuri-goizukan)
 
-`TypeScript` `React` `Docker` `Edge TTS` `VOICEVOX` `BYOK (OpenAI / Anthropic / Google)`
+日本語の複合動詞を **前項 × 後項** の<br>組み合わせ地図として可視化
 
-APIキーをブラウザのローカルストレージのみに保持し、サーバーへ送信しない **BYOK方式** を採用。
-「鍵を預からない = 守るべきものを持たない」設計にしました。
-連続読み上げでは次文の音声を先読みキャッシュし、待機時間を排除しています。
+<img src="https://skillicons.dev/icons?i=react,vite&theme=dark" height="34"/>
 
-### [複合動詞図鑑](https://github.com/RainYaya/bikuri-goizukan)
+**→ [Live Demo](https://bikuri-goizukan.vercel.app)**
 
-日本語の複合動詞を「前項 × 後項」の組み合わせ地図として可視化する図鑑。
+</td>
+<td width="50%" valign="top">
 
-`React 19` `Vite` `静的JSON` — [デモ](https://bikuri-goizukan.vercel.app)
+#### 📡 Server Monitor `2019–2021`
+
+複数ホストの **CPU / メモリ / ディスク**を<br>収集・可視化し、閾値超過で通知
+
+<img src="https://skillicons.dev/icons?i=cs,dotnet&theme=dark" height="34"/>
+
+`WPF` `Prism (MVVM)` `EF Core`
+
+</td>
+</tr>
+</table>
 
 <br>
 
-## 経歴
+<div align="center">
 
-| 期間 | 内容 |
-|---|---|
-| 2026 – 現在 | 損害保険会社向け基幹システムの AWS 移行案件（開発メンバー） |
-| 2024 | 大学卒業（ソフトウェア工学・学士）／優秀卒業生表彰 |
-| 2019 – 2021 | 公的機関にてサーバー稼働監視システムの開発<br>`C#` `WPF` `Prism (MVVM)` `ASP.NET Core` `Entity Framework Core` |
+### 📐 Design Decisions
 
-複数サーバーホストのCPU・メモリ・ディスクを収集して可視化し、
-閾値超過時にアラートを通知するシステムを、クライアントとAPIの双方を含めて実装しました。
+*コードを読んでも分からない判断を、ADRとして残しています*
+
+</div>
+
+<table>
+<tr><td>
+
+**[ADR-0002](https://github.com/RainYaya/bikuri-NihongoLens/blob/main/docs/adr/0002-background-task-model.md)** — 競合するリソースで並行方針を分ける
+
+> 文字起こしは **直列**（GPUが1枚 → VRAM競合でOOM）
+> ダウンロードは **並列**（ネットワーク律速 → GPUを取り合わない）
+>
+> *残した制約：並列転録をするならVRAMの隔離が先*
+
+</td></tr>
+<tr><td>
+
+**[ADR-0004](https://github.com/RainYaya/bikuri-NihongoLens/blob/main/docs/adr/0004-playback-as-single-source-of-truth.md)** — 再生時刻を唯一の状態源にする
+
+> 単語ハイライト・字幕の自動スクロール・タイムラインの再生ヘッド
+> — 3つの表示面を同一の時計から導出
+>
+> *状態を2つ持たない → 同期のズレを構造的に排除*
+
+</td></tr>
+</table>
 
 <br>
 
-## 言語
+<div align="center">
 
-| | |
-|---|---|
-| 日本語 | ビジネスレベル（JLPT N1）— 業務における設計書作成・会議・報告 |
-| 中国語 | ネイティブ |
-| 英語 | 技術文書の読解 |
+<img src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api/top-langs/?username=RainYaya&layout=compact&langs_count=8&theme=github_dark&hide_border=true&bg_color=00000000&title_color=58A6FF&text_color=8B949E" height="150" alt="langs"/>
+<img src="https://github-readme-streak-stats.herokuapp.com/?user=RainYaya&theme=github-dark-blue&hide_border=true&background=00000000&stroke=30363D&ring=58A6FF&fire=FF9900&currStreakLabel=58A6FF" height="150" alt="streak"/>
+
+<br><br>
+
+`日本語 N1` &nbsp;·&nbsp; `中文 母語` &nbsp;·&nbsp; `English 技術文書`
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f2027,50:26619c,100:1a2980&height=110&section=footer" width="100%" alt="footer"/>
+
+</div>
