@@ -1,0 +1,546 @@
+%% rirekisho.sty --- 厚生労働省「履歴書様式例（令和3年4月）」に準拠したレイアウト
+%%
+%% 元様式は表計算ソフトで作られており，罫線位置・行高・ラベル位置が不揃いである．
+%% 本スタイルでは項目構成のみを踏襲し，配置は組版として整合するように取り直す．
+%%   - すべての枠は tabularx により版面幅ちょうどに揃える
+%%   - 年・月・内容の列幅を 1 ページ目と 2 ページ目で共通化する
+%%   - ラベルは固定幅ボックスに入れ，値の開始位置を全欄で揃える
+%%   - 行高・欄幅・欄間の余白はすべてマクロ／長さで一元管理する
+%%
+%% 使い方は main.tex を参照．データ入力用のコマンドで内容を与え，
+%% \rirekisho で 2 ページ分（1枚目・2枚目）を組版する．
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{rirekisho}[2026/08/02 v1.0 Japanese resume (JIS style)]
+
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{graphicx}
+\RequirePackage{trimclip} % 写真を 3:4 に切り抜くために使う
+
+\makeatletter
+
+%% ---------------------------------------------------------------- 寸法の一元管理
+\newlength{\rirekiInnerRuleWidth}\setlength{\rirekiInnerRuleWidth}{0.4pt} % 内側の罫線
+\newlength{\rirekiOuterRuleWidth}\setlength{\rirekiOuterRuleWidth}{0.8pt} % 外枠の罫線
+\setlength{\arrayrulewidth}{\rirekiInnerRuleWidth}
+\setlength{\tabcolsep}{1.5mm}
+% 行の高さはすべてストラットか高さ指定セルで与えるので，表側の行ストラットは殺す
+\renewcommand{\arraystretch}{0}
+
+\newlength{\rirekiLabelWidth}\setlength{\rirekiLabelWidth}{16mm} % ラベル欄の幅
+\newlength{\rirekiPhotoWidth}\setlength{\rirekiPhotoWidth}{30mm} % 写真枠の幅（実寸）
+\newlength{\rirekiPhotoGap}\setlength{\rirekiPhotoGap}{2mm}     % 写真枠と本体の罫線とのあき
+\newlength{\rirekiPhotoHeight}\setlength{\rirekiPhotoHeight}{40mm} % 写真枠の高さ（実寸）
+\newcommand*{\rirekiPhotoDash}{2}      % 写真枠の点線の刻み（pt）
+\newcommand*{\rirekiPhotoRatioW}{3}    % 写真の縦横比（横）
+\newcommand*{\rirekiPhotoRatioH}{4}    % 写真の縦横比（縦）
+% 氏名行の高さは指定しない．写真の上端を表題行の上端に，下端を現住所欄の
+% 上罫線の \rirekiPhotoGap 上にそろえた結果として決まる（\riri@nameheight）．
+\newlength{\riri@nameheight}
+\newsavebox{\riri@imgbox}
+\newlength{\riri@imgcrop}
+\newsavebox{\riri@titlebox}
+\newlength{\rirekiTelWidth}\setlength{\rirekiTelWidth}{42mm}     % 電話欄の幅
+\newlength{\rirekiNameInset}\setlength{\rirekiNameInset}{20mm} % 氏名欄の右端を電話欄の縦罫線より左に寄せる量
+\newlength{\rirekiSexWidth}\setlength{\rirekiSexWidth}{24mm}     % 性別欄の幅
+\newlength{\rirekiYearWidth}\setlength{\rirekiYearWidth}{16mm}   % 年欄の幅
+\newlength{\rirekiMonthWidth}\setlength{\rirekiMonthWidth}{11mm} % 月欄の幅
+
+\newcommand*{\rirekiHeadHeight}{8mm}    % 見出し行の高さ
+\newcommand*{\rirekiLineHeight}{10mm}    % 年月表の 1 行の高さ
+\newcommand*{\rirekiFuriHeight}{6mm}  % ふりがな行の高さ
+\newcommand*{\rirekiAddrHeight}{23.3mm}   % 住所行の高さ
+\newcommand*{\rirekiBirthHeight}{9mm}  % 生年月日行の高さ
+\newcommand*{\rirekiBlockSkip}{4mm}     % 枠と枠の間隔
+\newcommand*{\rirekiCellPad}{2mm}      % 欄の上罫線と記入内容とのあき
+\newcommand*{\rirekiTextPad}{3.5mm}    % 自由記入欄（志望の動機・本人希望）の上のあき
+\newcommand*{\rirekiTextParSkip}{0.25\baselineskip} % 自由記入欄の段落間のあき
+
+\newcommand*{\rirekiRowsGakurekiA}{15}  % 1ページ目の学歴・職歴の行数
+\newcommand*{\rirekiRowsGakurekiB}{7}   % 2ページ目の学歴・職歴の行数
+\newcommand*{\rirekiRowsMenkyo}{6}      % 免許・資格の行数
+\newcommand*{\rirekiHeightShibou}{57mm} % 志望の動機欄の高さ
+\newcommand*{\rirekiHeightKibou}{20.4mm}  % 本人希望記入欄の高さ
+
+%% ---------------------------------------------------------------- 組版用の部品
+% 行の高さを確保する不可視ルール（高さは常にこの経路で与える）
+\newcommand*{\rirekiRowDepth}{2.5mm}
+\newcommand{\rirekiRow}[1]{\rule[-\rirekiRowDepth]{0pt}{#1}}
+% 固定幅ラベル：値の開始位置を全欄で揃えるために用いる
+\newcommand{\rirekiLabel}[1]{\makebox[\rirekiLabelWidth][l]{#1}}
+% ラベル付きの値ブロック（折り返し後もラベル幅の分だけ字下げされる）
+\newcommand{\rirekiField}[2]{%
+	\rirekiLabel{#1}\parbox[t]{\dimexpr\linewidth-\rirekiLabelWidth\relax}{#2}}
+% セル内の区切り罫線．\hrule はセルの本文幅しか引かれず両端に \tabcolsep の
+% あきが残るので，左右に \tabcolsep 分伸ばして縦罫線まで届かせる．
+\newcommand{\rirekiInnerRule}{%
+	\nointerlineskip
+	\noindent\rlap{\hspace*{-\tabcolsep}%
+		\rule{\dimexpr\linewidth+2\tabcolsep\relax}{\arrayrulewidth}}\par
+	\nointerlineskip}
+% 外枠の罫線．横罫は \arrayrulewidth を一時的に太くして引き，縦罫は列指定で使う．
+\newcommand{\rirekiHOut}{%
+	\noalign{\global\arrayrulewidth\rirekiOuterRuleWidth}\hline
+	\noalign{\global\arrayrulewidth\rirekiInnerRuleWidth}}
+% 外枠の縦罫は列指定 O で使う（\newcolumntype でないと array が展開しない）
+\newcolumntype{O}{!{\vrule width\rirekiOuterRuleWidth}}
+% 高さを指定するセル（中身は上寄せ／中央寄せ）．行の高さはストラットか
+% このセルかのどちらか一方だけで与える（両方使うと高さが二重に加算される）．
+\newcommand{\rirekiCell}[2]{\parbox[t][#1][t]{\linewidth}{#2}}
+\newcommand{\rirekiCellC}[2]{\parbox[t][#1][c]{\linewidth}{#2}}
+% 自由記入欄（志望の動機・本人希望記入欄）の本文．上と左右のあきを同じにする．
+% 列にはもともと \tabcolsep のあきがあるので，その差分だけ内側に寄せる．
+% ここだけは記入者が任意の段落や表を書く場所なので，枠の組版用に殺してある
+% \arraystretch と，\parbox が 0 にする \parskip を通常の値に戻す．
+\newcommand{\rirekiTextBox}[2]{%
+	\rirekiCell{#1}{%
+		\vspace*{\rirekiTextPad}%
+		\hspace*{\dimexpr\rirekiTextPad-\tabcolsep\relax}%
+		\parbox[t]{\dimexpr\linewidth-2\rirekiTextPad+2\tabcolsep\relax}{%
+			\renewcommand{\arraystretch}{1}%
+			\setlength{\parskip}{\rirekiTextParSkip}%
+			#2}}}
+% \parbox は \@parboxrestore で列の \centering / \raggedright を打ち消すので，
+% 上下中央のセルでは行揃えを中で指定し直す
+\newcommand{\rirekiCellCC}[2]{\rirekiCellC{#1}{\centering #2}}
+\newcommand{\rirekiCellCL}[2]{\rirekiCellC{#1}{\raggedright #2}}
+% 中央揃えの固定幅列／左揃えの伸縮列
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+% 枠を隙間なく縦に積む（罫線の二重描画を避けるため上罫線は先頭の枠だけに引く）
+\newcommand{\rirekiGlue}{\par\nointerlineskip\noindent}
+\newcommand{\rirekiSkip}{\par\vspace{\rirekiBlockSkip}\noindent}
+
+%% ---------------------------------------------------------------- データの保持
+\newcommand{\riri@newfield}[1]{\expandafter\let\csname riri@#1\endcsname\@empty}
+\riri@newfield{sakuseibi}
+\riri@newfield{furigana}
+\riri@newfield{shimei}
+\riri@newfield{seinengappi}
+\riri@newfield{nenrei}
+% 満年齢の計算に使う年月日（表示用の \riri@sakuseibi / \riri@seinengappi とは別に持つ）
+\riri@newfield{kijunY}
+\riri@newfield{kijunM}
+\riri@newfield{kijunD}
+\riri@newfield{seinenY}
+\riri@newfield{seinenM}
+\riri@newfield{seinenD}
+\riri@newfield{seibetsu}
+\riri@newfield{shashin}
+\riri@newfield{jushofurigana}
+\riri@newfield{jushoyubin}
+\riri@newfield{jusho}
+\riri@newfield{jushotel}
+\riri@newfield{renrakufurigana}
+\riri@newfield{renrakuyubin}
+\riri@newfield{renraku}
+\riri@newfield{renrakutel}
+% 段落を含みうる欄は \long で定義するので，空判定用の値も \long にする
+\long\def\riri@emptylong{}
+\let\riri@shibou\riri@emptylong
+\let\riri@kibou\riri@emptylong
+
+% 値が空なら第 2 引数（空欄用の書式）を出す
+\newcommand{\riri@or}[2]{\ifx#1\@empty #2\else #1\fi}
+
+%% ---------------------------------------------------------------- データ入力用コマンド
+% 作成日：\sakuseibi{2026}{8}{2}（年・月・日を算用数字で与える）
+% この日付が満年齢の基準日になる．表示を和暦などに変えたいときは省略可能引数で上書きする：
+%   \sakuseibi[令和8年8月2日]{2026}{8}{2}
+% 年を空（\sakuseibi{}{}{}）にするとビルド日を西暦で入れる．
+% ビルド日を和暦で出すなら \sakuseibi[\wareki]{\the\year}{\the\month}{\the\day}
+\newcommand{\sakuseibi}[4][]{%
+	\def\riri@tmp{#2}%
+	\ifx\riri@tmp\@empty
+		\global\let\riri@sakuseibi\@empty
+		\global\let\riri@kijunY\@empty
+	\else
+		\def\riri@tmp{#1}%
+		\ifx\riri@tmp\@empty
+			\gdef\riri@sakuseibi{#2年#3月#4日}%
+		\else
+			\gdef\riri@sakuseibi{#1}%
+		\fi
+		\gdef\riri@kijunY{#2}\gdef\riri@kijunM{#3}\gdef\riri@kijunD{#4}%
+	\fi}
+% ふりがな（氏名）：\furigana{やまだ　たろう}
+\providecommand{\furigana}{}
+\renewcommand{\furigana}[1]{\gdef\riri@furigana{#1}}
+% 氏名：\shimei{山田　太郎}
+\newcommand{\shimei}[1]{\gdef\riri@shimei{#1}}
+% 生年月日：\seinengappi{1990}{1}{1}（年・月・日を算用数字で与える）
+% 満年齢は作成日（\sakuseibi）との差から自動で計算する．
+% 表示を和暦などにしたいときは省略可能引数で上書きする：
+%   \seinengappi[平成2年1月1日]{1990}{1}{1}
+% 年を空にすると生年月日・満年齢とも空欄の書式になる．
+\newcommand{\seinengappi}[4][]{%
+	\def\riri@tmp{#2}%
+	\ifx\riri@tmp\@empty
+		\global\let\riri@seinengappi\@empty
+		\global\let\riri@seinenY\@empty
+	\else
+		\def\riri@tmp{#1}%
+		\ifx\riri@tmp\@empty
+			\gdef\riri@seinengappi{#2年#3月#4日}%
+		\else
+			\gdef\riri@seinengappi{#1}%
+		\fi
+		\gdef\riri@seinenY{#2}\gdef\riri@seinenM{#3}\gdef\riri@seinenD{#4}%
+	\fi}
+% 作成日が空欄ならビルド日で埋める（表示も満年齢の基準日もビルド日になる）
+\newcommand{\riri@setsakuseibi}{%
+	\ifx\riri@kijunY\@empty
+		\gdef\riri@kijunY{\the\year}%
+		\gdef\riri@kijunM{\the\month}\gdef\riri@kijunD{\the\day}%
+		\gdef\riri@sakuseibi{\the\year 年\the\month 月\the\day 日}%
+	\fi}
+% 満年齢＝基準日（作成日）の年－生年．
+% \sakuseibi と \seinengappi の記入順に依存しないよう，本文開始時にまとめて計算する．
+\newcommand{\riri@setnenrei}{%
+	\ifx\riri@seinenY\@empty\else
+		\@tempcnta=\numexpr\riri@kijunY-\riri@seinenY\relax
+		% その年の誕生日をまだ迎えていなければ 1 引く（月日を MMDD の整数にして比べる）
+		\ifnum\numexpr\riri@kijunM*100+\riri@kijunD\relax
+			<\numexpr\riri@seinenM*100+\riri@seinenD\relax
+			\advance\@tempcnta\m@ne
+		\fi
+		\ifnum\@tempcnta<\z@
+			\PackageWarning{rirekisho}{生年月日が基準日より後です（満年齢が負になります）}%
+		\fi
+		\xdef\riri@nenrei{\the\@tempcnta}%
+	\fi}
+\AtBeginDocument{\riri@setsakuseibi\riri@setnenrei}
+% 性別（記載は任意）：\seibetsu{男}
+\newcommand{\seibetsu}[1]{\gdef\riri@seibetsu{#1}}
+% 写真の画像ファイル：\shashin{photo.jpg}（空なら枠のみ）
+\newcommand{\shashin}[1]{\gdef\riri@shashin{#1}}
+% 現住所：\genjusho{ふりがな}{郵便番号}{住所}{電話}
+\newcommand{\genjusho}[4]{%
+	\gdef\riri@jushofurigana{#1}\gdef\riri@jushoyubin{#2}%
+	\gdef\riri@jusho{#3}\gdef\riri@jushotel{#4}}
+% 連絡先：\renrakusaki{ふりがな}{郵便番号}{住所}{電話}
+\newcommand{\renrakusaki}[4]{%
+	\gdef\riri@renrakufurigana{#1}\gdef\riri@renrakuyubin{#2}%
+	\gdef\riri@renraku{#3}\gdef\riri@renrakutel{#4}}
+% 志望の動機，特技，好きな学科，アピールポイントなど（段落可）
+\long\def\shibou#1{\long\gdef\riri@shibou{#1}}
+% 本人希望記入欄（段落可）
+\long\def\kibou#1{\long\gdef\riri@kibou{#1}}
+
+\ExplSyntaxOn
+\seq_new:N \g__riri_gakureki_seq
+\seq_new:N \g__riri_menkyo_seq
+
+% 学歴・職歴：\gakureki{2015}{4}{○○大学○○学部　入学}
+% 書いた順に 1 ページ目 → 2 ページ目へ自動で流し込む
+\NewDocumentCommand \gakureki { m m m }
+  { \seq_gput_right:Nn \g__riri_gakureki_seq { {#1} {#2} {#3} } }
+% 免許・資格：\menkyo{2018}{6}{普通自動車第一種運転免許　取得}
+\NewDocumentCommand \menkyo { m m m }
+  { \seq_gput_right:Nn \g__riri_menkyo_seq { {#1} {#2} {#3} } }
+
+% 年・月・内容の 1 行をトークンリストに積む
+\tl_new:N \l__riri_rows_tl
+\bool_new:N \l__riri_first_bool
+\cs_new_protected:Npn \__riri_row:nnn #1#2#3
+  {
+    \bool_if:NTF \l__riri_first_bool
+      { \bool_set_false:N \l__riri_first_bool }
+      { \tl_put_right:Nn \l__riri_rows_tl { \hline } }
+    \tl_put_right:Nn \l__riri_rows_tl
+      {
+        \rirekiCellCC{\rirekiLineHeight}{#1} &
+        \rirekiCellCC{\rirekiLineHeight}{#2} &
+        \rirekiCellCL{\rirekiLineHeight}{#3} \\
+      }
+  }
+
+% #1 番目から #2 番目までの項目を出力し，足りない分は空行で埋める．
+% 行はいったんトークンリストに組んでから一括で流し込む．
+% 繰り返しを表の中で直接展開すると，最後の \hline の後ろに残る後始末の
+% トークンが新しい行の開始と解釈され，空の行が 1 行余分に出るため．
+\cs_new_protected:Npn \__riri_rows:Nnn #1#2#3
+  {
+    \tl_clear:N \l__riri_rows_tl
+    \bool_set_true:N \l__riri_first_bool
+    \seq_map_indexed_inline:Nn #1
+      { \int_compare:nT { #2 <= ##1 <= #3 } { \__riri_row:nnn ##2 } }
+    \int_step_inline:nnn
+      { \int_max:nn {#2} { \seq_count:N #1 + 1 } } {#3}
+      { \__riri_row:nnn { } { } { } }
+    \tl_use:N \l__riri_rows_tl
+  }
+
+\cs_new_protected:Npn \riri_gakureki_rows:nn #1#2
+  { \__riri_rows:Nnn \g__riri_gakureki_seq {#1} {#2} }
+\cs_new_protected:Npn \riri_menkyo_rows:nn #1#2
+  { \__riri_rows:Nnn \g__riri_menkyo_seq {#1} {#2} }
+
+% LaTeX 側から使う別名
+\cs_new_eq:NN \rirekiGakurekiRows \riri_gakureki_rows:nn
+\cs_new_eq:NN \rirekiMenkyoRows \riri_menkyo_rows:nn
+\cs_new:Npn \rirekiEval #1 { \int_eval:n {#1} }
+\ExplSyntaxOff
+
+%% ---------------------------------------------------------------- 部品
+% 空欄時に出す「　年　月　日」の書式
+\newcommand{\rirekiBlankDate}{\hspace{7mm}年\hspace{6mm}月\hspace{6mm}日}
+
+% 和暦のビルド日：作成日の表示用に
+% \sakuseibi[\wareki]{\the\year}{\the\month}{\the\day} のように使う
+\newcommand{\wareki}{%
+	令和\ifnum\numexpr\year-2018\relax=1 元\else\the\numexpr\year-2018\relax\fi 年%
+	\the\month 月\the\day 日}
+
+% 写真枠の中の箇条書き．番号のぶら下げをリストに任せることで，
+% 「縦…」の折り返し（「横…」の行）が番号の右にそろう．
+\newenvironment{rirekiPhotoList}{%
+	\begin{list}{}{%
+		\setlength{\leftmargin}{1.5\zw}%
+		\setlength{\labelwidth}{1.5\zw}%
+		\setlength{\labelsep}{0pt}%
+		\setlength{\itemindent}{0pt}%
+		\setlength{\listparindent}{0pt}%
+		\setlength{\topsep}{0pt}%
+		\setlength{\partopsep}{0pt}%
+		\setlength{\parsep}{0pt}%
+		\setlength{\itemsep}{0pt}%
+		\renewcommand{\makelabel}[1]{##1\hfil}}%
+}{\end{list}}
+
+% 写真枠．本体の罫線とは別の独立した枠とし，周囲に \rirekiPhotoGap のあきを取る．
+% 枠は様式にならって点線で，内側の大きさはちょうど
+% \rirekiPhotoWidth×\rirekiPhotoHeight（既定 30mm×40mm）．
+% 文言と配置は厚労省の様式例に従う（「3.裏面のりづけ」は入れない）．
+\newcommand{\rirekiPhotoBox}{%
+	\begingroup
+	\setlength{\unitlength}{1pt}%
+	\linethickness{\arrayrulewidth}%
+	% picture の枠は罫線を内側に描くので，内寸がちょうど 30mm×40mm になるよう
+	% 罫線 2 本分を足しておく
+	\edef\riri@pw{\strip@pt\dimexpr\rirekiPhotoWidth+2\arrayrulewidth\relax}%
+	\edef\riri@ph{\strip@pt\dimexpr\rirekiPhotoHeight+2\arrayrulewidth\relax}%
+	\ifx\riri@shashin\@empty
+		\expandafter\dashbox\expandafter{\rirekiPhotoDash}(\riri@pw,\riri@ph){%
+			\parbox[c][\rirekiPhotoHeight][c]{\dimexpr\rirekiPhotoWidth-4mm\relax}{%
+				\scriptsize
+				\centering 写真をはる位置\par\medskip
+				\raggedright
+				写真をはる必要が\\
+				ある場合
+				\begin{rirekiPhotoList}
+					\item[1.] 縦36～40mm\\
+					横24～30mm
+					\item[2.] 本人単身胸から上
+				\end{rirekiPhotoList}}}%
+	\else
+		\rirekiPhotoImage
+	\fi
+	\endgroup}
+
+% 指定された写真を，枠と同じ 3:4（\rirekiPhotoWidth×\rirekiPhotoHeight）に収める．
+% 縦横比が違う場合は，長い方向のはみ出しを中央基準で左右（または上下）均等に切る．
+\newcommand{\rirekiPhotoImage}{%
+	\sbox\riri@imgbox{\includegraphics{\riri@shashin}}%
+	\ifdim\dimexpr\wd\riri@imgbox*\rirekiPhotoRatioH\relax
+			>\dimexpr\ht\riri@imgbox*\rirekiPhotoRatioW\relax
+		% 枠より横長：高さを合わせて左右を切る
+		\sbox\riri@imgbox{\includegraphics[height=\rirekiPhotoHeight]{\riri@shashin}}%
+		\setlength{\riri@imgcrop}{\dimexpr(\wd\riri@imgbox-\rirekiPhotoWidth)/2\relax}%
+		\edef\riri@clip{\the\riri@imgcrop\space0pt\space\the\riri@imgcrop\space0pt}%
+	\else
+		% 枠より縦長：幅を合わせて上下を切る
+		\sbox\riri@imgbox{\includegraphics[width=\rirekiPhotoWidth]{\riri@shashin}}%
+		\setlength{\riri@imgcrop}{\dimexpr(\ht\riri@imgbox-\rirekiPhotoHeight)/2\relax}%
+		\edef\riri@clip{0pt\space\the\riri@imgcrop\space0pt\space\the\riri@imgcrop}%
+	\fi
+	\makebox[\dimexpr\rirekiPhotoWidth+2\arrayrulewidth\relax][c]{%
+		\expandafter\clipbox\expandafter{\riri@clip}{\usebox\riri@imgbox}}%
+}
+
+% 氏名欄・生年月日欄の幅．電話欄の縦罫線より \rirekiNameInset だけ左で止める．
+% 表題行の作成日もこの位置にそろえる．
+\newcommand{\rirekiFormLeftWidth}{%
+	\dimexpr\textwidth-\rirekiTelWidth-\rirekiNameInset\relax}
+
+% 写真の配置．氏名欄の右のあきに，高さを持たないボックスとして重ねる．
+% こうすると写真の高さが氏名欄の高さを縛らない（本来この 2 つは無関係である）．
+% 左右は氏名欄の右端と電話欄の右端（版面右端）の間で中央にそろえる．
+% #1 だけ現在位置から持ち上げた高さが写真の上端になる．
+\newcommand{\rirekiPhotoOverlay}[1]{%
+	\par\nointerlineskip
+	\noindent\makebox[\textwidth][l]{%
+		\hspace*{\rirekiFormLeftWidth}%
+		\makebox[\dimexpr\textwidth-\rirekiFormLeftWidth\relax][c]{%
+			\raisebox{\dimexpr#1-\height\relax}[0pt][0pt]{\rirekiPhotoBox}}}%
+	\par\nointerlineskip}
+
+% 電話欄（ラベルと番号の位置を全欄で揃える）
+\newcommand{\rirekiTelBox}[1]{%
+	\parbox[t][\rirekiAddrBlockHeight][t]{\linewidth}{%
+		\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}%
+		\rirekiCellC{\rirekiFuriHeight}{\footnotesize 電話}\par
+		\nointerlineskip
+		\vspace*{\rirekiCellPad}\hspace*{1\zw}#1}}
+
+% 住所欄の高さ（ふりがな行＋住所行）
+\newcommand{\rirekiAddrBlockHeight}{%
+	\dimexpr\rirekiFuriHeight+\rirekiAddrHeight\relax}
+
+% 住所欄の左側．氏名欄と同じく 1 つの高さ指定ボックスに組む
+% （\multirow は行の実際の高さを知らないので使わない）．
+% #1 ふりがな，#2 ラベル，#3 郵便番号のあとに置く注記，#4 郵便番号，#5 住所
+\newcommand{\rirekiAddrBlock}[5]{%
+	\parbox[t][\rirekiAddrBlockHeight][t]{\linewidth}{%
+		\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}%
+		\rirekiCellC{\rirekiFuriHeight}{%
+			\rirekiLabel{\footnotesize ふりがな}#1}\par
+		\rirekiInnerRule
+		\parbox[t][\dimexpr\rirekiAddrHeight-\arrayrulewidth\relax][t]{\linewidth}{%
+			\vspace*{\rirekiCellPad}%
+			\rirekiField{#2}{%
+				〒\hspace{0.5\zw}#4#3%
+				\par\vspace{0.5\baselineskip}
+				#5}}\par}}
+
+%% ---------------------------------------------------------------- 1ページ目
+\newcommand{\rirekiPageOne}{%
+	% 表題と作成日：作成日の右端を氏名欄の右端にそろえる
+	\sbox\riri@titlebox{%
+		\makebox[\rirekiFormLeftWidth][l]{%
+			{\LARGE 履\hspace{0.5\zw}歴\hspace{0.5\zw}書}\hfill
+			\riri@or\riri@sakuseibi\rirekiBlankDate 現在}}%
+	% 写真の上端は表題行の上端，下端は現住所欄の上罫線の \rirekiPhotoGap 上．
+	% 氏名行の高さはその差し引きで決まる．
+	\setlength{\riri@nameheight}{%
+		\dimexpr\rirekiPhotoHeight+2\arrayrulewidth+\rirekiPhotoGap
+			-\ht\riri@titlebox-\dp\riri@titlebox
+			-\rirekiBlockSkip-\rirekiFuriHeight-\rirekiBirthHeight
+			-3\arrayrulewidth\relax}%
+	\noindent\usebox\riri@titlebox
+	% 写真（表題行の上端から，氏名欄の右のあきに重ねる）
+	\rirekiPhotoOverlay{\dimexpr\ht\riri@titlebox+\dp\riri@titlebox\relax}%
+	\par\vspace{\rirekiBlockSkip}
+	%
+	% 氏名欄．写真のあきの分だけ幅が狭く，下罫線は次の欄の上罫線が兼ねる．
+	\noindent
+	\begin{tabularx}{\rirekiFormLeftWidth}{OYO}
+		\rirekiHOut
+		\rirekiCellC{\rirekiFuriHeight}{%
+			\rirekiLabel{\footnotesize ふりがな}\riri@furigana} \\ \hline
+		\rirekiCell{\riri@nameheight}{%
+			\vspace*{\rirekiCellPad}%
+			\rirekiLabel{氏\hspace{1\zw}名}\par
+			\nointerlineskip
+			\parbox[t][\dimexpr\riri@nameheight-\rirekiFuriHeight-\rirekiCellPad\relax][c]{\linewidth}{%
+				\hspace*{\rirekiLabelWidth}{\LARGE\riri@shimei}}} \\
+	\end{tabularx}
+	%
+	% 生年月日欄＋性別欄（氏名欄と同じ幅．上罫線が氏名欄の下罫線を兼ねる）
+	\rirekiGlue
+	\begin{tabularx}{\rirekiFormLeftWidth}{OY|L{\rirekiSexWidth}O}
+		\hline
+		\rirekiRow{\rirekiBirthHeight}\centering\arraybackslash
+		\riri@or\riri@seinengappi\rirekiBlankDate 生%
+		\hspace{1\zw}（満\hspace{0.5\zw}%
+		\riri@or\riri@nenrei{\hspace{5mm}}%
+		\hspace{0.5\zw}歳）%
+		 & \makebox[13mm][l]{\footnotesize ※性別}\riri@seibetsu \\
+	\end{tabularx}
+	%
+	% 現住所欄（ここから全幅．上罫線が生年月日欄と写真のあきの下辺を兼ねる）
+	\rirekiGlue
+	\begin{tabularx}{\textwidth}{OY|p{\rirekiTelWidth}O}
+		\rirekiHOut
+		\rirekiAddrBlock{\riri@jushofurigana}{現住所}{}%
+		{\riri@jushoyubin}{\riri@jusho}
+		 & \rirekiTelBox{\riri@jushotel} \\ \hline
+	\end{tabularx}
+	%
+	% 連絡先欄
+	\rirekiGlue
+	\begin{tabularx}{\textwidth}{OY|p{\rirekiTelWidth}O}
+		\rirekiAddrBlock{\riri@renrakufurigana}{連絡先}%
+		{\hfill{\footnotesize （現住所以外に連絡を希望する場合のみ記入）}}%
+		{\riri@renrakuyubin}{\riri@renraku}
+		 & \rirekiTelBox{\riri@renrakutel} \\ \rirekiHOut
+	\end{tabularx}
+	%
+	% 学歴・職歴（1ページ目）
+	\rirekiSkip
+	\begin{tabularx}{\textwidth}{OC{\rirekiYearWidth}|C{\rirekiMonthWidth}|YO}
+		\rirekiHOut
+		\rirekiCellCC{\rirekiHeadHeight}{年} & \rirekiCellCC{\rirekiHeadHeight}{月}
+		& \rirekiCellCC{\rirekiHeadHeight}{%
+			学\hspace{0.5\zw}歴・職\hspace{0.5\zw}歴（各別にまとめて書く）} \\ \hline
+		\rirekiGakurekiRows{1}{\rirekiRowsGakurekiA}%
+		\rirekiHOut
+	\end{tabularx}
+	%
+	% 注記は版面の下（下マージン側）に高さを持たないボックスとして置く．
+	% 本文の流れに積むと，そのぶん表が短くなって 2 ページ目と下端がそろわない．
+	\par\nointerlineskip
+	\noindent\rlap{\raisebox{-\dimexpr\rirekiBlockSkip+2.5mm\relax}[0pt][0pt]{%
+		\footnotesize ※「性別」欄：記載は任意である．未記載とすることもできる．}}%
+	\par\nointerlineskip
+}
+
+%% ---------------------------------------------------------------- 2ページ目
+\newcommand{\rirekiPageTwo}{%
+	% 1 ページ目の表題行の分だけ下げ，最初の罫線の高さを 1 ページ目とそろえる．
+	% ページ先頭の \topskip はここでは効かせたくないので差し引く．
+	\vspace*{\dimexpr\ht\riri@titlebox+\dp\riri@titlebox+\rirekiBlockSkip
+		-\topskip-0.4mm\relax}%
+	% 学歴・職歴（続き）
+	\noindent
+	\begin{tabularx}{\textwidth}{OC{\rirekiYearWidth}|C{\rirekiMonthWidth}|YO}
+		\rirekiHOut
+		\rirekiCellCC{\rirekiHeadHeight}{年} & \rirekiCellCC{\rirekiHeadHeight}{月}
+		& \rirekiCellCC{\rirekiHeadHeight}{%
+			学\hspace{0.5\zw}歴・職\hspace{0.5\zw}歴（各別にまとめて書く）} \\ \hline
+		\rirekiGakurekiRows{\rirekiEval{\rirekiRowsGakurekiA+1}}%
+		{\rirekiEval{\rirekiRowsGakurekiA+\rirekiRowsGakurekiB}}%
+		\rirekiHOut
+	\end{tabularx}
+	%
+	% 免許・資格
+	\rirekiSkip
+	\begin{tabularx}{\textwidth}{OC{\rirekiYearWidth}|C{\rirekiMonthWidth}|YO}
+		\rirekiHOut
+		\rirekiCellCC{\rirekiHeadHeight}{年} & \rirekiCellCC{\rirekiHeadHeight}{月}
+		& \rirekiCellCC{\rirekiHeadHeight}{%
+			免\hspace{0.5\zw}許・資\hspace{0.5\zw}格} \\ \hline
+		\rirekiMenkyoRows{1}{\rirekiRowsMenkyo}%
+		\rirekiHOut
+	\end{tabularx}
+	%
+	% 志望の動機など
+	\rirekiSkip
+	\begin{tabularx}{\textwidth}{OYO}
+		\rirekiHOut
+		\rirekiRow{\rirekiHeadHeight}志望の動機，特技，好きな学科，アピールポイントなど \\ \hline
+		\rirekiTextBox{\rirekiHeightShibou}{\riri@shibou} \\ \rirekiHOut
+	\end{tabularx}
+	%
+	% 本人希望記入欄
+	\rirekiSkip
+	\begin{tabularx}{\textwidth}{OYO}
+		\rirekiHOut
+		\rirekiRow{\rirekiHeadHeight}本人希望記入欄（特に給料・職種・勤務時間・勤務地・その他についての希望などがあれば記入） \\ \hline
+		\rirekiTextBox{\rirekiHeightKibou}{\riri@kibou} \\ \rirekiHOut
+	\end{tabularx}
+}
+
+%% ---------------------------------------------------------------- 本体
+\newcommand{\rirekisho}{%
+	\thispagestyle{empty}%
+	\rirekiPageOne
+	\clearpage
+	\thispagestyle{empty}%
+	\rirekiPageTwo
+}
+
+\makeatother
+\endinput
