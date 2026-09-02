@@ -15,5 +15,8 @@ jobs:
           MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
           MIRROR_REPO: ${{ vars.MIRROR_REPO }}
         run: |
-          git remote add mirror "https://x-access-token:${MIRROR_TOKEN}@github.com/${MIRROR_REPO}.git"
-          git push --force mirror main:main
+          if [ -z "$MIRROR_TOKEN" ]; then
+            echo "MIRROR_TOKEN is empty"
+            exit 1
+          fi
+          git -c credential.helper= push --force "https://x-access-token:${MIRROR_TOKEN}@github.com/${MIRROR_REPO}.git" main:main
