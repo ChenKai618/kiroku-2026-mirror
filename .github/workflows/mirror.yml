@@ -1,0 +1,19 @@
+name: Mirror to public
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to mirror repo
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+          MIRROR_REPO: ${{ vars.MIRROR_REPO }}
+        run: |
+          git remote add mirror "https://x-access-token:${MIRROR_TOKEN}@github.com/${MIRROR_REPO}.git"
+          git push --force mirror main:main
