@@ -1,7 +1,21 @@
-# 職務経歴書 — 提出用PDFの作り方
+## 2つの組版
 
-**本文**: `../職務経歴書_陳凱_20260829.txt`（プレーンテキスト・これを編集する）
-**完成品**: `../職務経歴書_陳凱_20260829.pdf`（A4・4ページ）
+| ファイル | 組版 | 特徴 |
+|---|---|---|
+| `build.tex`（旧・従来版） | Verbatim（等幅・左寄せ固定） | テキストをそのまま流し込む。右側に空白が出る |
+| `build_jlreq.tex`（新・通常組版） | jlreq 段落・両端揃え | 右空きがなく日本語らしい見た目。**テクニカルスキルに言語使用年数を追記済み** |
+
+**新規追加・修正は `build_jlreq.tex` を直接編集する。** 内容は .txt とほぼ同一だが、
+構造（見出し・箇条書き）は LaTeX で書かれている。
+
+## 再ビルド手順（build_jlreq.tex）
+
+```bash
+cd 職務経歴書_LaTeX
+docker run --rm -v "$PWD":/workdir paperist/texlive-ja:latest latexmk -lualatex build_jlreq.tex
+```
+
+（旧 build.tex の再ビルドは下記の従来手順）
 
 ## 再ビルド手順
 
