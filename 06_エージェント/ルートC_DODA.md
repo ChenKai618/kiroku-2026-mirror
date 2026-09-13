@@ -1,5 +1,16 @@
 # ルートC：DODA（猎头推薦＋自己検索）
 
+> **このルートの開始方法（コピペ用）**
+> ```
+> 06_エージェント/ルートC_DODA.md を読んで、
+> DODAのCA推薦の新着と、自己検索の候補を調査してください。
+> ```
+> **URL**
+> - CA推薦求人：`https://doda.jp/dcfront/referredJob/referredJobList/`
+> - 企業からのオファー：`https://doda.jp/dcfront/referredJob/interviewOfferList/`
+> - 気になるした企業：`https://doda.jp/dcfront/bookmark/bookmarkCompany/`
+> - 自分で検索：`https://doda.jp/`
+>
 > **対象**：DODA（doda.jp）
 > **チャネルの性質**：**2つの入口がある** ①キャリアアドバイザー（CA）推薦 ②自分で検索
 > **データ本体**：`DODA求人台帳.md`（このファイルは実行手順と最新状態のサマリ）

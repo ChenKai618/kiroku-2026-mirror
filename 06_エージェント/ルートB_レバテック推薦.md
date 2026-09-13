@@ -1,5 +1,16 @@
 # ルートB：純推薦型（レバテック サジェスト/検討中）
 
+> **このルートの開始方法（コピペ用）**
+> ```
+> 06_エージェント/ルートB_レバテック推薦.md を読んで、
+> レバテックの未選定の新着を調査してください。
+> ```
+> **URL**
+> - 未選定（サジェスト）：`https://mypage.levtech.jp/recruits/suggested`
+> - 検討中：`https://mypage.levtech.jp/recruits/considering`
+> - 選考中（応募済み）：`https://mypage.levtech.jp/recruits/screening`
+> - 対象外：`https://mypage.levtech.jp/recruits/excluded`
+>
 > **対象**：レバテック（`mypage.levtech.jp/recruits/suggested`）
 > **チャネルの性質**：エージェント（レバテック）が**あなたの経歴に基づいて推薦してくる**求人。母数は限られる。
 > **データ本体**：`レバテック求人台帳.md`（このファイルは実行手順と最新状態のサマリ）

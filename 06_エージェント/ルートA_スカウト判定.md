@@ -1,5 +1,14 @@
 # ルートA：打招呼型（Levtech Direct・BizReach）スカウト判定
 
+> **このルートの開始方法（コピペ用）**
+> ```
+> 06_エージェント/ルートA_スカウト判定.md を読んで、
+> Levtech Direct と BizReach の新着スカウトを判定してください。
+> ```
+> **URL**
+> - Levtech Direct：`https://levtech-direct.jp/mypage/message?from_type=header`
+> - BizReach：`https://www.bizreach.jp/messages/`
+>
 > **対象**：Levtech Direct、BizReach（メッセージ・スカウト）
 > **チャネルの性質**：猎头・企業から**向こうから来る**。母数を自分で選べない。
 > **このルートの唯一の目的**：**ノイズ除去（足切り）**。9割はKPIの乱れ打ち。残った1〜2件だけ深掘りする。
